@@ -131,6 +131,7 @@ R = H * X;  % Each column in R corresponds to one event response
 
 % Generate noise E
 E = randn(n, K);
+%E = epsilon*norm(X(:,1))*normc(E); % epsilon as percentage
 E = epsilon*normc(E);
 
 %%%%%%%%%%%%%%%%
@@ -140,6 +141,7 @@ Y = R + alpha*B + E;
 % Construct the DH_I matrix for comp_sensing function
 %DH_I = [D * H, eye(N - 1)];
 
+output.E = E;
 output.D = D;
 output.H = H;
 output.Y = Y;

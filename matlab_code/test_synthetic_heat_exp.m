@@ -26,7 +26,8 @@ cs_results = zeros([nrows, ncols]);
 gms_results = cs_results;
 
 input.n = n;
-
+input.X_sparsity = 5;
+input.epsilon = 0.2;
 
 
 input.delta = 0.01; %0.4
