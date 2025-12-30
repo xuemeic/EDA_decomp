@@ -177,7 +177,7 @@ switch method
             xlast = x;    
             tlast = t;
             x = SoftThresh(y - (1/L)*A'*(A*y - b), lam/L);
-            %x(x<0)=0; %%%%% this line added 12/30/2025
+            
             t = (1+sqrt(1+4*t^2))/2;
             y = x + (tlast - 1)/t*(x - xlast);
             x_change = norm(x - xlast, 'fro')/(norm(xlast, 'fro') + 1);

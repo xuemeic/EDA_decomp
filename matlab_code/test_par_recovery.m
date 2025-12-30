@@ -63,6 +63,7 @@ elseif strcmp(cs_method, 'lasso')
     l_lam = 0.02;
     [recovered_Z, ~] = my_lasso(A1, -diff(oo.Y), l_lam, paral);
     recovered_X1 = recovered_Z(1:N,:);
+    recovered_X1(recovered_X1<0)=0;
 end
 cs1_time = toc;
 
@@ -88,6 +89,7 @@ recovered_X2 = recovered_Z(1:n1,:);
 
 
 X_cs2 = reconstr_data(recovered_X2, size(oo.Y), n_chops, overlap);
+X_cs2(X_cs2<0)=0;
 cs2_time = toc;
 
 cs2_error = calc_error(X_cs2, oo.X);
@@ -111,7 +113,7 @@ tic
 output = gen_matrix_sep_con(Y_chopped, H, lam, para);
 X_gms = reconstr_data(output.S, size(oo.Y), n_chops, overlap);
 gms_time = toc;
-
+X_gms(X_gms<0)=0;
 % Error for Matrix Separation
 gms_error = calc_error(X_gms, oo.X);
 %calc_support_error(output.S, oo.X, 0.05)

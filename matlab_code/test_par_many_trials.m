@@ -1,4 +1,4 @@
-%% test
+%% test: for n_trials = 40 and max_K=4, took about 10min
 
 n_trials = 40;
 max_K = 4;

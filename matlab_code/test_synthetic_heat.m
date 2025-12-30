@@ -8,6 +8,7 @@ input.X_supp = 'unif';
 % if 'mild', baseline is slow varying
 % if 'jump', baseline has jumps
 input.B_mode = 'mild'; 
+input.DB_sparsity = 1;
 
 % choose 'cvx' or 'lasso'
 %%%%%%%%%% WARNING: if 'cvx', takes 14-20 min, slightly more accurate %%%%%%%%%%%
@@ -17,7 +18,8 @@ cs_method = 'lasso'; % a lot faster!
 n = 240;
 K = 40;
 sparsity_range = 1:3:31;
-epsilon_range = [0.02, 0.08, 0.16, 0.32, 0.64, 1];
+%epsilon_range = [0.01, 0.02, 0.04, 0.08, 0.16, 0.32];
+epsilon_range = [0.02, 0.08, 0.16, 0.32, 0.64, 1.28];
 
 nrows = length(epsilon_range);
 ncols = length(sparsity_range);
@@ -25,11 +27,12 @@ cs_results = zeros([nrows, ncols]);
 gms_results = cs_results;
 
 input.n = n;
-input.DB_sparsity = 1;
+input.X_sparsity = 5;
+input.epsilon = 0.2;
 
 
-input.delta = 0.01; %0.4
-input.gamma = 0.01; %0.4
+input.delta = 1; %0.4
+input.gamma = 1; %0.4
 input.K = K;
 input.alpha = 1;
 
@@ -72,13 +75,16 @@ for i = 1:nrows
         else
         [recovered_Z, ~] = my_lasso(A, -diff(oo.Y), l_lam, paral);
         recovered_X = recovered_Z(1:n,:);
+        recovered_X(recovered_X<0)=0;
         end
         x_error_vec = sqrt(sum((recovered_X - oo.X).^2, 1))./sqrt(sum((oo.X).^2, 1));
         cs_results(i,j) = mean(x_error_vec);
 
         % GMS method
         output = gen_matrix_sep_con(oo.Y, oo.H, lam, para);
-        x_error_vec2 = sqrt(sum((output.S - oo.X).^2, 1))./sqrt(sum((oo.X).^2, 1));
+        SP = output.S;
+        SP(SP<0)=0; %%%% proj onto positive coord
+        x_error_vec2 = sqrt(sum((SP - oo.X).^2, 1))./sqrt(sum((oo.X).^2, 1));
         gms_results(i,j) = mean(x_error_vec2);
         recovered(i,j).gms = output.S;
         recovered(i,j).truth = oo.X;
@@ -98,7 +104,7 @@ xticks = sparsity_range;
 set(gca, 'XTick', xticks, 'XTickLabel', xticks);
 yticks = epsilon_range;
 set(gca, 'YTickLabel', yticks);
-clim([0,.4]);
+clim([0,.5]);
 xl = xlabel('number of SCR events s');
 yl = ylabel('noise level \epsilon');
 xl.FontSize = 15;
@@ -116,7 +122,7 @@ xticks = sparsity_range;
 set(gca, 'XTick', xticks, 'XTickLabel', xticks);
 yticks = epsilon_range;
 set(gca, 'YTickLabel', yticks);
-clim([0,.4]);
+clim([0,.5]);
 xl = xlabel('number of SCR events s');
 yl = ylabel('noise level \epsilon');
 xl.FontSize = 15;
@@ -124,4 +130,8 @@ yl.FontSize = 15;
 t1 = title("Relative Error via GMS method");
 t1.FontSize = 16;
 
-
+%%
+%print("-f1", '../plots/synthetic_heat_EC', '-djpeg', '-r500')
+%print("-f1", '../plots/synthetic_heat_EJ', '-djpeg', '-r500')
+%print("-f1", '../plots/synthetic_heat_UJ', '-djpeg', '-r500')
+print("-f1", '../plots/synthetic_heat_UC', '-djpeg', '-r500')

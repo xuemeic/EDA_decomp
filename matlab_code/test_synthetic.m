@@ -4,7 +4,7 @@
 rng(3)
 input.n = 370;
 input.X_sparsity = 10;
-input.X_supp = 'exp';
+input.X_supp = 'unif';
 input.delta = 10; %0.4
 input.gamma = 10; %0.4
 input.epsilon = 0.3; %0.1
@@ -36,6 +36,7 @@ elseif strcmp(cs_method, 'lasso')
     l_lam = 0.02;
     [recovered_Z, ~] = my_lasso(A, -diff(oo.Y), l_lam, paral);
     recovered_X = recovered_Z(1:n,:);
+    recovered_X(recovered_X<0)=0; %%%% proj onto positive coord
 end
 cs_time = toc;
 
@@ -62,8 +63,10 @@ tic
 output = gen_matrix_sep_con(oo.Y, oo.H, lam, para);
 gms_time = toc;
 
+SP = output.S;
+SP(SP<0)=0; %%%% proj onto positive coord
 % Error for Matrix Separation
-gms_error = calc_error(output.S, oo.X);
+gms_error = calc_error(SP, oo.X);
 %calc_support_error(output.S, oo.X, 0.05)
 fprintf('gms error is %.3f; runtime is %.3f.\n', gms_error, gms_time)
 
@@ -72,7 +75,7 @@ figure(1)
 ii = 3;
 subplot(2,1,1)
 %plot(1:n, oo.X(:,ii), 1:n, output.S(:,ii))
-plot1sig(output.S(:,ii), oo.X(:,ii), 0.2, 'GMS');
+plot1sig(SP(:,ii), oo.X(:,ii), 0.2, 'GMS');
 
 subplot(2,1,2)
 plot1sig(recovered_X(:,ii), oo.X(:,ii), 0.2, 'CS');
