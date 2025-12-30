@@ -141,7 +141,7 @@ while RelChg > tol_outer && count_outer < N_outer
     L = SVT(M - H*S - U, 1/rho_outer);
     %L(L<0) = 0; %%%%%%%%%%%%%%%%%%%%%%%% this line is added on 10/12/2025
     [S, ~] = my_lasso(H, M - U - L, lam/rho_outer, para_lasso);  
-    S(S<0) = 0; %%%%%%%%%%%%%%%%%%%%%%%% this line is added on 8/12/2025
+    %S(S<0) = 0; %%%%%%%%%%%%%%%%%%%%%%%% this line is added on 8/12/2025
 
     U = U + L + H*S - M;
     count_outer = count_outer + 1;

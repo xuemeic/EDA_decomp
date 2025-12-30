@@ -1,6 +1,6 @@
 %% Test on parallelled recovery
 % 12/25/2025
-function [cs1, cs2, gms] = test_par_recovery(K)
+function [cs1, cs2, gms] = test_par_recovery(K, n_chops, overlap)
 %% Create synthetic data
 %rng(3)
 input.n = 1360; 
@@ -9,7 +9,7 @@ input.X_supp = 'unif';
 input.delta = 10; 
 input.gamma = 10; 
 input.epsilon = 0.3; 
-input.K = K;
+input.K = 1;
 input.alpha = 1;
 input.B_mode = "mild";
 input.DB_sparsity = 1;
@@ -18,7 +18,20 @@ input.tau2 = 0.75;
 input.H_mode = 'tril';
 
 oo1 = create_synthetic_data(input);
-
+oo = oo1;
+if K > 1
+    
+    for j = 1:(K-1)
+        input2 = input;
+        input2.X_supp = 'unif';
+        input2.B_mode = 'mild';
+        input2.DB_sparsity = 1;
+        oo2 = create_synthetic_data(input2);
+        oo.Y = [oo.Y, oo2.Y];
+        oo.X = [oo.X, oo2.X];
+    end
+end
+%{
 input2 = input;
 input2.X_supp = 'unif';
 input2.B_mode = "jump";
@@ -27,13 +40,13 @@ oo2 = create_synthetic_data(input2);
 
 oo = oo1;
 oo.Y = [oo1.Y, oo2.Y]; oo.X = [oo1.X, oo2.X];
-
+%}
 cs_method = 'lasso';
 
 %% reshape data
 % 5, 0.8
-n_chops = 5;
-overlap = 0.7;
+%n_chops = 5;
+%overlap = 0.7;
 Y_chopped = chop_data(oo.Y, n_chops, overlap);
 
 %% Compressed Sensing Method 1: traditional, process the whole signal
@@ -55,7 +68,7 @@ cs1_time = toc;
 
 % Calculate the relative error for the Compressed Sensing method
 cs1_error = calc_error(recovered_X1, oo.X);
-fprintf('cs1 error is %.3f; runtime is %.3f.\n', cs1_error, cs1_time)
+%fprintf('cs1 error is %.3f; runtime is %.3f.\n', cs1_error, cs1_time)
 
 %% Compressed Sensing Method 2: parallelled recovery
 
@@ -78,7 +91,7 @@ X_cs2 = reconstr_data(recovered_X2, size(oo.Y), n_chops, overlap);
 cs2_time = toc;
 
 cs2_error = calc_error(X_cs2, oo.X);
-fprintf('cs2 error is %.3f; runtime is %.3f.\n', cs2_error, cs2_time)
+%fprintf('cs2 error is %.3f; runtime is %.3f.\n', cs2_error, cs2_time)
 
 %% GMS
 para.rho_outer = 1; 
@@ -102,7 +115,7 @@ gms_time = toc;
 % Error for Matrix Separation
 gms_error = calc_error(X_gms, oo.X);
 %calc_support_error(output.S, oo.X, 0.05)
-fprintf('gms error is %.3f; runtime is %.3f.\n', gms_error, gms_time)
+%fprintf('gms error is %.3f; runtime is %.3f.\n', gms_error, gms_time)
 
 cs1.time = cs1_time;
 cs1.error = cs1_error;

@@ -4,7 +4,7 @@
 rng(3)
 input.n = 370;
 input.X_sparsity = 10;
-input.X_supp = 'unif';
+input.X_supp = 'exp';
 input.delta = 10; %0.4
 input.gamma = 10; %0.4
 input.epsilon = 0.3; %0.1
@@ -69,7 +69,7 @@ fprintf('gms error is %.3f; runtime is %.3f.\n', gms_error, gms_time)
 
 %% Plot
 figure(1)
-ii = 5;
+ii = 3;
 subplot(2,1,1)
 %plot(1:n, oo.X(:,ii), 1:n, output.S(:,ii))
 plot1sig(output.S(:,ii), oo.X(:,ii), 0.2, 'GMS');

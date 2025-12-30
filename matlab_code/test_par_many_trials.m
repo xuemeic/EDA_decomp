@@ -1,6 +1,7 @@
 %% test
-n_trials = 30;
-max_K = 2;
+
+n_trials = 40;
+max_K = 4;
 
 % initialization
 clear T error
@@ -15,7 +16,7 @@ error.gms = T.cs1;
 
 for K = 1:max_K
 for i = 1:n_trials
-    [cs1, cs2, gms] = test_par_recovery(K);
+    [cs1, cs2, gms] = test_par_recovery(K, 5, 0.8);
     T.cs1(K, i) = cs1.time;
     error.cs1(K, i) = cs1.error;
 
@@ -27,15 +28,16 @@ for i = 1:n_trials
 end
 end
 
-%save("test_par.mat","T","error")
+% 5 and 0.8 seems to be a good choice
+%save("test_par_5_p8.mat","T","error")
 %% see results
-load('test_par.mat')
+%load('test_par_5_p8.mat')
 time_t = table;
 
 time_t.cs1 = mean(T.cs1, 2);
 time_t.cs2 = mean(T.cs2, 2);
 time_t.gms = mean(T.gms, 2);
-time_t.Properties.RowNames = {'K=2', 'K=4'};
+%time_t.Properties.RowNames = {'K=2', 'K=4'};
 time_t
 
 error_t = time_t;
